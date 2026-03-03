@@ -1,0 +1,178 @@
+---
+alwaysApply: true
+---
+
+## PURPOSE
+Generate .mdx files under /content/ that render through /project/[slug]
+using getMDXComponents. Rules derived from existing project files.
+
+---
+
+## FILE STRUCTURE
+
+- One .mdx file per project at /content/{slug}.mdx
+- Filename = route slug, lowercase kebab-case
+- Every file begins with imports (if any), then a metadata export
+
+---
+
+## METADATA CONTRACT
+
+export const metadata = {
+  title: string,              // Project name, max 60 chars
+  role: string,               // Your role ("UI/UX Designer", "Full-Stack Developer")
+  type: string,               // Category: "Design" | "Engineering" | "Business"
+  description: string,        // 1-2 sentence summary, renders at 2xl. Max 250 chars
+  date: string,               // ISO format YYYY-MM-DD, year is extracted for display
+  tags: string[],             // 2-6 tags from the TAGS constant or custom strings
+  additionalLinks: [          // External links array, can be empty []
+    { label: string, url: string }
+  ],
+  image: string,              // Hero media: /projects/{slug}/filename.{ext}
+  previewImage: string,       // Card preview media (can match image)
+  featured: boolean,          // Whether to feature on homepage
+  priority: number            // Sort order for featured projects (1 = highest)
+}
+
+Rules:
+- ALL fields are required, no optional omissions
+- Media paths live under /projects/{slug}/ (not /images/)
+- Supported media: .png, .jpg, .webp, .webm, .mp4
+- If no external links exist, use an empty array: []
+- Import shared constants when applicable (e.g., TAGS)
+
+---
+
+## AVAILABLE CUSTOM COMPONENTS
+
+Only these components are available beyond standard markdown:
+
+### <Image />
+  Props: src (string), width (number), height (number), alt (string, required),
+         className? (string), caption? (string)
+  Notes:
+  - alt text is mandatory and descriptive
+  - caption prop renders styled caption text beneath the image
+  - className supports Tailwind utilities including dark mode variants
+  - For dark-mode-adaptive diagrams, use:
+    className="invert hue-rotate-180 dark:invert-0 dark:hue-rotate-0"
+
+### <Video />
+  Props: src (string)
+  Notes:
+  - Use for .webm or .mp4 inline video
+
+### <ImageMarquee />
+  Props: folder (string), direction ("left" | "right")
+  Notes:
+  - Auto-reads all images from the specified public folder
+  - Use in pairs with alternating directions for visual rhythm
+
+---
+
+## INLINE HTML USAGE
+
+Raw HTML with Tailwind is permitted for layout when no component exists:
+
+### Grid layouts for side-by-side images:
+  <div className="grid grid-cols-3 gap-2 md:gap-8 -mb-8">
+    <Image ... />
+    <Image ... />
+    <Image ... />
+  </div>
+
+### Manual captions (when not using Image caption prop):
+  <div className="text-xs text-muted-foreground mt-2 mb-16">
+    Caption text here
+  </div>
+
+### Vertical spacing:
+  <div className="my-12" />
+
+Rules:
+- Only use raw HTML for layout grids, spacing, and caption overrides
+- Always use Tailwind classes, never inline style attributes
+- Prefer the Image caption prop over manual caption divs when possible
+
+---
+
+## CONTENT STRUCTURE
+
+### Heading Hierarchy
+- Use # (h1) for major narrative section headers
+- Use ## (h2) for subsections within a narrative beat
+- Section headers should read as declarative statements, not labels
+  GOOD: "# We made everything accessible through the tap of a card."
+  BAD:  "# Solution"
+
+### Narrative Arc
+Follow this story structure:
+
+1. **Hook** — Bold claim or problem statement as the first h1
+2. **Context** — Set the scene: what is the project, scale, stakes
+3. **Problem** — Pain points, supported by research or data
+4. **HMW Statement** — "How might we..." framed as an h1, isolated
+   between two horizontal rules (---)
+5. **Process / Insight** — Key decisions, diagrams, journey maps
+6. **Solution** — What was built, how it works, key interactions
+7. **Results / Impact** — Metrics in bold, awards, reception
+8. **Extension / Future** — Optional: what came next or what's possible
+
+Not every section is required. Omit what doesn't exist for the project.
+
+### Horizontal Rules
+- Use --- to create dramatic pauses or isolate key statements
+  (e.g., the HMW question, or before/after marquee sections)
+
+---
+
+## WRITING STYLE
+
+- First person plural ("we") for team projects
+- First person singular ("I") for solo work
+- Past tense for process, present tense for describing artifacts
+- Narrative and conversational, not academic
+- Use rhetorical questions to frame problems naturally
+- No filler intros ("In this case study I will...")
+- Paragraphs are 1-4 sentences max
+- Audience: hiring managers, design leads, potential collaborators
+
+---
+
+## IMAGE STRATEGY
+
+- All assets in /public/projects/{slug}/
+- Subdirectories for organization: /prototypes/app/, /ux/, etc.
+- UX artifacts (journey maps, pain points): use dark mode invert pattern
+- App screenshots: grid layout, 3-column on desktop
+- Full-width images: use className="self-center w-full"
+- Marquee sections: pair two <ImageMarquee /> with opposite directions,
+  separated by a <div className="my-12" /> spacer
+
+---
+
+## FIGMA-TO-MDX TRANSLATION
+
+1. Each Figma page/section becomes an h1 narrative beat
+2. Figma text frames become paragraphs; respect hierarchy
+3. Figma image frames become <Image /> with matching dimensions
+4. Figma grids (e.g., 3-up phone mockups) become div.grid layouts
+5. Figma scroll/carousel sections become <ImageMarquee />
+6. Figma annotations or callout boxes become bold/italic inline text
+7. If a Figma element has no MDX equivalent:
+   {/* TODO: No component for [description] — needs new component */}
+
+---
+
+## VALIDATION CHECKLIST
+
+- [ ] metadata export has ALL fields, no undefined values
+- [ ] Slug matches filename exactly
+- [ ] All media paths use /projects/{slug}/ convention
+- [ ] Every <Image /> has a meaningful alt prop
+- [ ] h1 headers are narrative statements, not generic labels
+- [ ] Bold metrics, bold-italic key terms, italic for light emphasis
+- [ ] HMW question is isolated between --- rules
+- [ ] No components used outside the allowed set
+- [ ] No inline style attributes — Tailwind only
+- [ ] Renders without error through getMDXComponents pipeline
