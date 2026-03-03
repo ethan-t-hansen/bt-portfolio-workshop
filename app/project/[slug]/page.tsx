@@ -17,6 +17,25 @@ export type PostMetadata = Metadata & {
   image: string;
 };
 
+function ProjectMetaItem({
+  label,
+  value,
+  wrapValue = false,
+}: {
+  label: string;
+  value?: string | null;
+  wrapValue?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-sm ${wrapValue ? "wrap-break-word" : ""}`}>
+        {value ?? "—"}
+      </p>
+    </div>
+  );
+}
+
 export default async function Page({
   params,
 }: {
@@ -51,25 +70,22 @@ export default async function Page({
       <main className="relative mx-auto min-h-screen w-full justify-center lg:justify-start">
           <div className="flex flex-col gap-1 w-full mb-8 border-b border-border border-dashed pb-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:gap-8">
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Title</p>
-                <p className="text-sm break-words">{metadata.title ?? "—"}</p>
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Role</p>
-                <p className="text-sm break-words">{projectRole ?? "—"}</p>
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">Year</p>
-                <p className="text-sm">{projectYear ?? "—"}</p>
-              </div>
+              <ProjectMetaItem
+                label="Title"
+                value={metadata.title}
+                wrapValue
+              />
+              <ProjectMetaItem
+                label="Role"
+                value={projectRole}
+                wrapValue
+              />
+              <ProjectMetaItem label="Year" value={projectYear} />
             </div>
 
             <MediaPreview
               src={metadata.image}
-              className="flex h-64 md:h-[24rem] w-full mt-2 mb-1"
+              className="flex h-64 md:h-96 w-full mt-2 mb-1"
             />
 
             <p className="text-2xl font-regular tracking-tight mt-4">
